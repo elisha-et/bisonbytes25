@@ -1,5 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { Box, IconButton, Paper, TextField } from "@mui/material";
+
+import MicIcon from "@mui/icons-material/Mic";
+import { MicNone } from "@mui/icons-material";
 import SendIcon from "@mui/icons-material/Send";
 
 import SpeechRecognition, {
@@ -14,8 +17,8 @@ const ChatInput = (props) => {
      * Clears user input and prompts Gemini
      */
     const sendPrompt = () => {
-        if (input) {
-            processRequest(input);
+        if (input.trim()) {
+            processRequest(input.trim());
             setInput("");
         }
     };
@@ -35,34 +38,44 @@ const ChatInput = (props) => {
         }
     };
 
+    // Binds all keyboard inputs
+    useEffect(() => {
+        document.addEventListener("keydown", handleEnterKey, false);
+
+        return () => {
+            document.removeEventListener("keydown", handleEnterKey, false);
+        };
+    });
+
     const {
         transcript,
         listening,
         resetTranscript,
-        browserSupportsSpeechRecognition,
     } = useSpeechRecognition();
 
+    
+
     /**
-     * Binds the space key as a microphone toggle to receive speech-to-text
-     * @param {*} e The event triggered
+     * Opens the microphone if enable; otherwise opens a modal warning that the
+     * microphone is not enabled
      */
-    const handleSpaceKeyDown = (e) => {
-        if (e.key === " " && !listening) {
-            // resetTranscript();
-            SpeechRecognition.startListening();
-        }
+    const openMic = () => {
+        console.log("Mic opened");
+        SpeechRecognition.startListening();
     };
 
-    // Binds all keyboard inputs
-    useEffect(() => {
-        document.addEventListener("keydown", handleEnterKey, false);
-        document.addEventListener("keydown", handleSpaceKeyDown, false);
+    /**
+     * Appends recorded speech as text in input
+     * @param {*} e The event triggered
+     */
+    const recordTranscript = () => {
+        console.log("Mic closed");
+        
+        SpeechRecognition.stopListening();
 
-        return () => {
-            document.removeEventListener("keydown", handleEnterKey, false);
-            document.addEventListener("keydown", handleSpaceKeyDown, false);
-        };
-    });
+        setInput(`${input} ${transcript}`);
+        resetTranscript();
+    };
 
     return (
         <Box display="flex" flexDirection="column">
@@ -76,7 +89,20 @@ const ChatInput = (props) => {
                         variant="outlined"
                     />
 
-                    <IconButton aria-label="delete" onClick={sendPrompt}>
+                    <IconButton
+                        aria-label="record audio"
+                        onClick={() => {
+                            !listening ? openMic() : recordTranscript();
+                        }}
+                    >
+                        {listening ? (
+                            <MicIcon color="secondary" />
+                        ) : (
+                            <MicNone onClick={openMic} />
+                        )}
+                    </IconButton>
+
+                    <IconButton aria-label="send" onClick={sendPrompt}>
                         <SendIcon />
                     </IconButton>
                 </Box>
