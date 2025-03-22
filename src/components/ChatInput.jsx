@@ -47,21 +47,14 @@ const ChatInput = (props) => {
         };
     });
 
-    const {
-        transcript,
-        listening,
-        resetTranscript,
-    } = useSpeechRecognition();
-
-    
+    const { transcript, listening } = useSpeechRecognition();
 
     /**
      * Opens the microphone if enable; otherwise opens a modal warning that the
      * microphone is not enabled
      */
     const openMic = () => {
-        console.log("Mic opened");
-        SpeechRecognition.startListening();
+        SpeechRecognition.startListening({ continuous: true });
     };
 
     /**
@@ -69,12 +62,9 @@ const ChatInput = (props) => {
      * @param {*} e The event triggered
      */
     const recordTranscript = () => {
-        console.log("Mic closed");
-        
         SpeechRecognition.stopListening();
 
         setInput(`${input} ${transcript}`);
-        resetTranscript();
     };
 
     return (
@@ -98,7 +88,7 @@ const ChatInput = (props) => {
                         {listening ? (
                             <MicIcon color="secondary" />
                         ) : (
-                            <MicNone onClick={openMic} />
+                            <MicNone />
                         )}
                     </IconButton>
 
