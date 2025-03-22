@@ -13,21 +13,20 @@ const App = () => {
     const genAI = new GoogleGenerativeAI(process.env.REACT_APP_GEMINI_API_KEY);
     const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
 
-    // List of all the previous user prompts and machine responses
-    // Each element is structured as {prompt: "", response: ""}
+    // List of all the previous user input and machine responses
+    // Each element is structured as {input: "", response: ""}
     const [chatLog, setChatLog] = useState([]);
 
     /**
      * Retrieves response from Gemini and logs the prompt and response in the
-     * chat log as {prompt, response}
-     * @param {string} prompt The user prompt for Gemini
+     * chat log as {input, response}
+     * @param {string} input The user prompt for Gemini
      */
-    const processRequest = async (prompt) => {
-        const result = await model.generateContent(prompt);
+    const processRequest = async (input) => {
+        const result = await model.generateContent(input);
         const response = result.response.text();
 
-        console.log({ prompt, response })
-        setChatLog([...chatLog, { prompt, response }]);
+        setChatLog([...chatLog, { input, response }]);
     };
 
     return (
