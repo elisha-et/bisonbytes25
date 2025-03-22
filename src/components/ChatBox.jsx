@@ -1,16 +1,21 @@
 import React from "react";
-import { Box, ListItem, Paper, Typography } from "@mui/material";
+import { Box, ListItem, Typography } from "@mui/material";
+
+import ReactMarkdown from "react-markdown";
 
 const ChatBox = (props) => {
-    const { prompt, index } = props;
+    const { prompt } = props;
 
     return (
-        <ListItem mb={4}>
+        <ListItem>
             <Box display="flex" flexDirection="column" p={4}>
                 <Typography variant="h5">{prompt.input}</Typography>
-                <Typography>{prompt.response}</Typography>
+
+                <Typography>
+                    <ReactMarkdown>{prompt.response}</ReactMarkdown>
+                </Typography>
             </Box>
-        </ ListItem>
+        </ListItem>
     );
 };
 

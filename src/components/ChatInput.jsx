@@ -1,6 +1,10 @@
 import React, { useState, useEffect } from "react";
-import { Box, IconButton, Paper, TextField, Typography } from "@mui/material";
+import { Box, IconButton, Paper, TextField } from "@mui/material";
 import SendIcon from "@mui/icons-material/Send";
+
+import SpeechRecognition, {
+    useSpeechRecognition,
+} from "react-speech-recognition";
 
 const ChatInput = (props) => {
     const { processRequest } = props;
@@ -10,8 +14,10 @@ const ChatInput = (props) => {
      * Clears user input and prompts Gemini
      */
     const sendPrompt = () => {
-        processRequest(input);
-        setInput("");
+        if (input) {
+            processRequest(input);
+            setInput("");
+        }
     };
 
     /**
@@ -19,17 +25,42 @@ const ChatInput = (props) => {
      * @param {*} e The event triggered
      */
     const handleEnterKey = (e) => {
-        console.log("Enter");
-        if (e.key === "Enter" && input) {
+        if (e.key === "Enter") {
+            if (listening) {
+                SpeechRecognition.stopListening();
+                setInput(transcript);
+            }
+
             sendPrompt();
         }
     };
 
-    // Binds the enter key to sendPrompt
+    const {
+        transcript,
+        listening,
+        resetTranscript,
+        browserSupportsSpeechRecognition,
+    } = useSpeechRecognition();
+
+    /**
+     * Binds the space key as a microphone toggle to receive speech-to-text
+     * @param {*} e The event triggered
+     */
+    const handleSpaceKeyDown = (e) => {
+        if (e.key === " " && !listening) {
+            // resetTranscript();
+            SpeechRecognition.startListening();
+        }
+    };
+
+    // Binds all keyboard inputs
     useEffect(() => {
         document.addEventListener("keydown", handleEnterKey, false);
+        document.addEventListener("keydown", handleSpaceKeyDown, false);
+
         return () => {
             document.removeEventListener("keydown", handleEnterKey, false);
+            document.addEventListener("keydown", handleSpaceKeyDown, false);
         };
     });
 
@@ -38,11 +69,11 @@ const ChatInput = (props) => {
             <Paper variant="outlined">
                 <Box display="flex" flexDirection="row" p={2}>
                     <TextField
-                        label="Enter prompt"
-                        variant="outlined"
                         fullWidth
-                        value={input}
+                        label="Enter prompt"
                         onChange={(e) => setInput(e.target.value)}
+                        value={input}
+                        variant="outlined"
                     />
 
                     <IconButton aria-label="delete" onClick={sendPrompt}>
