@@ -88,6 +88,9 @@ const ChatInput = (props) => {
             alert("Browser does not support speech recognition.");
         }
 
+        // Flushes buffer
+        resetTranscript();
+
         SpeechRecognition.startListening({ continuous: true });
     };
 
@@ -98,12 +101,7 @@ const ChatInput = (props) => {
     const recordTranscript = () => {
         SpeechRecognition.stopListening();
         setInput(input + transcript);
-
-        // Flushes buffer
-        resetTranscript();
     };
-
-    console.log(currentModifier);
 
     return (
         <Box display="flex" flexDirection="column">
@@ -114,12 +112,14 @@ const ChatInput = (props) => {
                     flexDirection="row"
                     p={2}
                 >
-                    <FormControl fullWidth>
+                    <FormControl sx={{ width: 0.3, mr: 2 }}>
                         <InputLabel>Persona</InputLabel>
                         <Select
                             label="Persona"
                             value={currentModifier}
-                            onChange={(e) => handleModifierChange(e.target.value)}
+                            onChange={(e) =>
+                                handleModifierChange(e.target.value)
+                            }
                         >
                             {Object.keys(modifiers).map((persona) => (
                                 <MenuItem key={persona} value={persona}>
