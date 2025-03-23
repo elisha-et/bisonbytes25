@@ -17,19 +17,16 @@ const ChatLog = (props) => {
             <List>
                 {chatLog.length > 0 && (
                     <Paper variant="outlined">
-                        {chatLog.map((prompt) => (
-                            <ChatBox prompt={prompt} />
+                        {chatLog.map((prompt, index) => (
+                            <ChatBox key={prompt + index} prompt={prompt} />
                         ))}
                     </Paper>
                 )}
             </List>
-            
+
             {showSpinner && (
                 <Box p={4}>
-                    <CircularProgress
-                        id="prompt spinner"
-                        size="3rem"
-                    />
+                    <CircularProgress id="prompt spinner" size="3rem" />
                 </Box>
             )}
         </Box>

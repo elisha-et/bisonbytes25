@@ -1,6 +1,6 @@
 import "./App.css";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 
 import ChatInput from "./components/ChatInput";
 import ChatLog from "./components/ChatLog";
@@ -24,15 +24,22 @@ const App = () => {
      * chat log as {input, response}
      * @param {string} input The user prompt for Gemini
      */
-    const processRequest = async (input) => {
+    const processRequest = async (input, modifier) => {
         setShowSpinner(true);
 
-        const result = await model.generateContent(input);
+        const result = await model.generateContent(modifier + input);
         const response = result.response.text();
 
         setChatLog([...chatLog, { input, response }]);
         setShowSpinner(false);
     };
+
+    useEffect(() => {
+        const modifier =
+            "Pretend you're a game show host asking me computer trivia questions till I give up.";
+            
+        processRequest("", modifier);
+    }, []);
 
     return (
         <Box
@@ -42,14 +49,9 @@ const App = () => {
             px="20vw"
             py="10vh"
         >
-            <ChatLog
-                chatLog={chatLog}
-                showSpinner={showSpinner}
-            />
+            <ChatLog chatLog={chatLog} showSpinner={showSpinner} />
 
-            <ChatInput
-                processRequest={processRequest}
-            />
+            <ChatInput chatLog={chatLog} processRequest={processRequest} />
         </Box>
     );
 };

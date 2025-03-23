@@ -14,10 +14,8 @@ const ChatBox = (props) => {
         <ListItem>
             <Box display="flex" flexDirection="column" p={4}>
                 <Typography variant="h5">{prompt.input}</Typography>
+                <ReactMarkdown>{prompt.response}</ReactMarkdown>
 
-                <Typography>
-                    <ReactMarkdown>{prompt.response}</ReactMarkdown>
-                </Typography>
                 <Box>
                     <IconButton aria-label="send" onClick={start}>
                         <SpeakerNotesIcon />

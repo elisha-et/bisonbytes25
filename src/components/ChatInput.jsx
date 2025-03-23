@@ -10,15 +10,21 @@ import SpeechRecognition, {
 } from "react-speech-recognition";
 
 const ChatInput = (props) => {
-    const { processRequest } = props;
+    const { chatLog, processRequest } = props;
     const [input, setInput] = useState("");
 
     /**
      * Clears user input and prompts Gemini
      */
-    const sendPrompt = () => {
+    const sendPrompt = async () => {
         if (input.trim()) {
-            processRequest(input.trim());
+            const previousMemory = chatLog.at(-1).response;
+
+            let modifier =
+                "you're a game show host asking me computer trivia questions till I give up" +
+                "did I answer correctly; ask me another computer trivia question";
+
+            processRequest(input.trim(), modifier + previousMemory);
             setInput("");
         }
     };
@@ -72,7 +78,7 @@ const ChatInput = (props) => {
      */
     const recordTranscript = () => {
         SpeechRecognition.stopListening();
-        setInput(`${input}${transcript}`);
+        setInput(input + transcript);
 
         // Flushes buffer
         resetTranscript();
