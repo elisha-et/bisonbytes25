@@ -1,5 +1,14 @@
 import React, { useState, useEffect } from "react";
-import { Box, IconButton, Paper, TextField } from "@mui/material";
+import {
+    Box,
+    FormControl,
+    IconButton,
+    InputLabel,
+    MenuItem,
+    Paper,
+    Select,
+    TextField,
+} from "@mui/material";
 
 import MicIcon from "@mui/icons-material/Mic";
 import { MicNone } from "@mui/icons-material";
@@ -9,22 +18,32 @@ import SpeechRecognition, {
     useSpeechRecognition,
 } from "react-speech-recognition";
 
+import { toTitleCase } from "../App";
+
 const ChatInput = (props) => {
-    const { chatLog, processRequest } = props;
+    const {
+        chatLog,
+        processRequest,
+        currentModifier,
+        modifiers,
+        handleModifierChange,
+    } = props;
+
     const [input, setInput] = useState("");
 
     /**
      * Clears user input and prompts Gemini
      */
     const sendPrompt = async () => {
+        // Only prompts if the input is not whitespace
         if (input.trim()) {
+            // Inserts its previous response to create continuity in conservation
             const previousMemory = chatLog.at(-1).response;
+            processRequest(
+                input.trim(),
+                modifiers[currentModifier] + previousMemory
+            );
 
-            let modifier =
-                "you're a game show host asking me computer trivia questions till I give up" +
-                "did I answer correctly; ask me another computer trivia question";
-
-            processRequest(input.trim(), modifier + previousMemory);
             setInput("");
         }
     };
@@ -84,6 +103,8 @@ const ChatInput = (props) => {
         resetTranscript();
     };
 
+    console.log(currentModifier);
+
     return (
         <Box display="flex" flexDirection="column">
             <Paper variant="outlined">
@@ -93,6 +114,21 @@ const ChatInput = (props) => {
                     flexDirection="row"
                     p={2}
                 >
+                    <FormControl fullWidth>
+                        <InputLabel>Persona</InputLabel>
+                        <Select
+                            label="Persona"
+                            value={currentModifier}
+                            onChange={(e) => handleModifierChange(e.target.value)}
+                        >
+                            {Object.keys(modifiers).map((persona) => (
+                                <MenuItem key={persona} value={persona}>
+                                    {toTitleCase(persona)}
+                                </MenuItem>
+                            ))}
+                        </Select>
+                    </FormControl>
+
                     <TextField
                         fullWidth
                         label="Enter prompt"

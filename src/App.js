@@ -9,22 +9,16 @@ import { Box } from "@mui/material";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
 const App = () => {
-    const modifiers = {
-        gamehost: "",
-        therapist: "",
-    };
-    const [currentModifier, setModifier] = useState("gamehost");
-
-    // Initializes model with API key
-    const genAI = new GoogleGenerativeAI(process.env.REACT_APP_GEMINI_API_KEY);
-    const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
-
     // List of all the previous user input and machine responses
     // Each element is structured as {input: "", response: ""}
     const [chatLog, setChatLog] = useState([]);
 
     // Spinner to display when loading prompts
     const [showSpinner, setShowSpinner] = useState(false);
+
+    // Initializes model with API key
+    const genAI = new GoogleGenerativeAI(process.env.REACT_APP_GEMINI_API_KEY);
+    const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
 
     /**
      * Retrieves response from Gemini and logs the prompt and response in the
@@ -41,11 +35,33 @@ const App = () => {
         setShowSpinner(false);
     };
 
-    useEffect(() => {
-        const modifier =
-            "Pretend you're a game show host asking me computer trivia questions till I give up.";
+    const modifiers = {
+        gamehost:
+            "you're a gameshow host asking me computer trivia questions;" +
+            "if I answer correctly, describe more about the correct answer;" +
+            "if I answer incorrectly, tell me the correct answer;" +
+            "at the end, ask me another computer trivia question;" +
+            "no details describing yourself;",
+        therapist:
+            "you're a therapist that asks me if I am doing alright" +
+            "give me encouragement after I respond to help me feel better" +
+            "no details describing yourself",
+    };
 
-        processRequest("", modifier);
+    const [currentModifier, setModifier] = useState("gamehost");
+
+    /**
+     * Prompts Gemini to respond after switching personalities
+     * @param {string} modifier
+     */
+    const handleModifierChange = (modifier) => {
+        setModifier(modifier);
+        processRequest("", modifiers[modifier]);
+    };
+
+    // Defaults to the "gamehost" personality
+    useEffect(() => {
+        handleModifierChange("gamehost");
     }, []);
 
     return (
@@ -70,9 +86,28 @@ const App = () => {
             />
 
             <ChatLog chatLog={chatLog} showSpinner={showSpinner} />
-            <ChatInput chatLog={chatLog} processRequest={processRequest} />
+            <ChatInput
+                chatLog={chatLog}
+                processRequest={processRequest}
+                currentModifier={currentModifier}
+                modifiers={modifiers}
+                handleModifierChange={handleModifierChange}
+            />
         </Box>
     );
 };
 
+/**
+ * Capitalizes the first character and any characters proceding a non-character
+ * in the specified string.
+ * @param {string} string The specified string
+ * @returns A string with words capitalized
+ */
+const toTitleCase = (string) => {
+    return string
+        .toLowerCase()
+        .replace(/(^.)|(\W.)/g, (char) => char.toUpperCase());
+};
+
 export default App;
+export { toTitleCase };
