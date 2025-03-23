@@ -18,13 +18,19 @@ const ChatLog = (props) => {
                 {chatLog.length > 0 && (
                     <Paper variant="outlined">
                         {chatLog.map((prompt) => (
-                            <ChatBox prompt={prompt}/>
+                            <ChatBox prompt={prompt} />
                         ))}
                     </Paper>
                 )}
             </List>
+            
             {showSpinner && (
-                <CircularProgress p={2} size="3rem" />
+                <Box p={4}>
+                    <CircularProgress
+                        id="prompt spinner"
+                        size="3rem"
+                    />
+                </Box>
             )}
         </Box>
     );

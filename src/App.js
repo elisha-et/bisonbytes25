@@ -42,8 +42,14 @@ const App = () => {
             px="20vw"
             py="10vh"
         >
-            <ChatLog chatLog={chatLog} showSpinner={showSpinner} />
-            <ChatInput processRequest={processRequest} />
+            <ChatLog
+                chatLog={chatLog}
+                showSpinner={showSpinner}
+            />
+
+            <ChatInput
+                processRequest={processRequest}
+            />
         </Box>
     );
 };

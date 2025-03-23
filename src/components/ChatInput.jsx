@@ -47,13 +47,22 @@ const ChatInput = (props) => {
         };
     });
 
-    const { transcript, listening } = useSpeechRecognition();
+    const {
+        transcript,
+        listening,
+        browserSupportsSpeechRecognition,
+        resetTranscript,
+    } = useSpeechRecognition();
 
     /**
      * Opens the microphone if enable; otherwise opens a modal warning that the
      * microphone is not enabled
      */
-    const openMic = () => {
+    const handleStartListening = () => {
+        if (!browserSupportsSpeechRecognition) {
+            alert("Browser does not support speech recognition.");
+        }
+
         SpeechRecognition.startListening({ continuous: true });
     };
 
@@ -63,38 +72,52 @@ const ChatInput = (props) => {
      */
     const recordTranscript = () => {
         SpeechRecognition.stopListening();
+        setInput(`${input}${transcript}`);
 
-        setInput(`${input} ${transcript}`);
+        // Flushes buffer
+        resetTranscript();
     };
 
     return (
         <Box display="flex" flexDirection="column">
             <Paper variant="outlined">
-                <Box display="flex" flexDirection="row" p={2}>
+                <Box
+                    alignItems="center"
+                    display="flex"
+                    flexDirection="row"
+                    p={2}
+                >
                     <TextField
                         fullWidth
                         label="Enter prompt"
                         onChange={(e) => setInput(e.target.value)}
                         value={input}
                         variant="outlined"
+                        sx={{ mr: 2 }}
                     />
 
-                    <IconButton
-                        aria-label="record audio"
-                        onClick={() => {
-                            !listening ? openMic() : recordTranscript();
-                        }}
-                    >
-                        {listening ? (
-                            <MicIcon color="secondary" />
-                        ) : (
-                            <MicNone />
-                        )}
-                    </IconButton>
+                    <Box mr={2}>
+                        <IconButton
+                            aria-label="record audio"
+                            onClick={() => {
+                                !listening
+                                    ? handleStartListening()
+                                    : recordTranscript();
+                            }}
+                        >
+                            {listening ? (
+                                <MicIcon color="secondary" />
+                            ) : (
+                                <MicNone />
+                            )}
+                        </IconButton>
+                    </Box>
 
-                    <IconButton aria-label="send" onClick={sendPrompt}>
-                        <SendIcon />
-                    </IconButton>
+                    <Box>
+                        <IconButton aria-label="send" onClick={sendPrompt}>
+                            <SendIcon />
+                        </IconButton>
+                    </Box>
                 </Box>
             </Paper>
         </Box>
