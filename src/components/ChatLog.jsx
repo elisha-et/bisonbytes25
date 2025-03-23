@@ -26,7 +26,13 @@ const ChatLog = (props) => {
 
             {showSpinner && (
                 <Box p={4}>
-                    <CircularProgress id="prompt spinner" size="3rem" />
+                    <CircularProgress
+                        id="prompt spinner"
+                        sx={{
+                            color: "navyBlue.contrastText",
+                            size: "3rem",
+                        }}
+                    />
                 </Box>
             )}
         </Box>
